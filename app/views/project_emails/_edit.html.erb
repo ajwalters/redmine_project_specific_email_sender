@@ -1,0 +1,68 @@
+<style type="text/css" media="screen">
+  #tab-content-outbound_email .tabular label{margin:.2em .5em 0 0;width:auto;}
+</style>
+<script type="text/javascript">
+	Event.observe(window, "load", function(){
+		bindSubmit();
+		bindRestoreDefault();
+	});
+	
+	function bindSubmit(){
+		$('email_submit').observe('click', function(e){
+			var url = "<%= url_for(:controller => 'project_emails', :action => 'update', :id => @project) %>";
+			new Ajax.Request(url,{
+				method: 'put',
+				parameters: { email : $F('project_email')},
+				onComplete: function(return_val){
+					var message_text, flash_class;
+					if(return_val.responseText == "success"){
+						message_text = "Email successfully updated";
+						flash_class = "notice";
+					}else{
+						message_text = "Email format invalid";
+						flash_class = "error";
+					};
+					display_flash_message(message_text, flash_class);
+				}
+			});
+			e.stop();
+		});
+	}
+	
+	function bindRestoreDefault() {
+		// Bind Restore Default Ajax
+		$('restore_default').observe('click', function(e){
+			var url = "<%= url_for(:controller => 'project_emails', :action => 'restore_default', :id => @project) %>";
+			if(confirm("This will reset the project's sender email address to the system default.  Do you wish to continue?")){
+				new Ajax.Request(url,{
+					method: 'delete',
+					onComplete: function(return_val){
+						$('project_email').value = return_val.responseText;
+						display_flash_message("Email restored to system default", "notice");
+					}
+				});
+			}
+			e.stop();
+		});
+	}
+	
+	// JS function to create a flash message following Redmine's implementation
+	function display_flash_message(message, message_type) {
+		// Remove the JS flash message if one already exists
+		$$('.flash').each(function(flash){
+			flash.remove();
+		});
+		flash_markup = "<div class='flash "+ message_type +"'>"+ message +"</div>";
+		$('content').insert({top : flash_markup});
+	}
+	
+</script>
+<% form_for @project, :url => {:controller => 'project_emails', :action => 'update', :id => @project} do |f| %>
+<div class="box tabular">
+<%= f.label :email %>
+<%= f.text_field :email %>
+</div>
+<%= submit_tag("Update", :id => "email_submit") %>
+<% end %>
+<%= button_to("Restore Defaults", {:controller => 'project_emails', :action => 'restore_default', :id => @project}, :id => "restore_default")%>
+

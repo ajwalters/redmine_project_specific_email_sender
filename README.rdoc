@@ -1,0 +1,13 @@
+= project_specific_email_sender
+
+Allows each project to have a custom sender email address for all outbound emails.
+
+Permission to edit projects email address can be granted to Roles.  Under Role permissions, check the "Edit Project email" permission
+to grant a role edit privileges.
+
+To edit a projects email:
+	-Select the project
+	-Click the Settings tab
+	-Outbound Email tab
+
+
